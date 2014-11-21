@@ -23,7 +23,7 @@ def make_parser():
     description = "Store and retrieve snippets of text"
     parser = argparse.ArgumentParser(description=description)
 
-    subparsers = parser.add_subparsers(help="Available commands")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     #Subparser for the put command
     logging.debug("Constructing put subparser")
@@ -48,8 +48,8 @@ def main():
     command = arguments.pop("command")
 
     if command == "put":
-        name, snippet, filename = put(**arguments)
-        print "Stored {!r} as {!r} in {!r}".format(snippet, name, filename)
+        name, snippet = put(**arguments)
+        print "Stored {!r} as {!r}".format(snippet, name)
 
 if __name__ == "__main__":
     main()
