@@ -7,28 +7,31 @@ import sys
 logging.basicConfig(filename="output.log", level=logging.DEBUG)
 
 def put(name, snippet, filename):
-    """ Store a snippet with an associated name in the CSV file """
+    """ Store a snippet with an associated name in the CSV file.
+    Allows for multiple snippets by the same name to be present.
+    """
     logging.info("Writing {!r}:{!r} to {!r}".format(name, snippet, filename))
-    logging.debug("Opening file")
-    with open(filename, "wb") as f:
+    with open(filename, "a") as f:
+        logging.debug("Opening file: {!r}".format(filename))
         writer = csv.writer(f)
-        logging.debug("Writing snippet to file")
+        logging.debug("Writing snippet to file...")
         writer.writerow([name, snippet])
     logging.debug("Write successful")
     return name, snippet
 
 def get(name, filename):
-    """ Retrieve a stored snippet from the CSV file via the associated name """
+    """Retrieves all stored snippets by name from the CSV file. """
     logging.info("Retrieving {!r} from {!r}".format(name, filename))
-    logging.debug("Opening file")
     with open(filename, "rb") as f:
+        logging.debug("Opening file: {!r}".format(filename))
         reader = csv.reader(f)
-        logging.debug("Retrieving inside with..")
+        logging.debug("Retrieving snippet: {!r}".format(name))
+        my_snippets = []
         for row in reader:
             if name in row:
-                print(" ".join(row))
-    logging.debug("Retrieval Successful")
-    return name
+                my_snippets.append(row)
+                logging.debug("Retrieval Successful")
+    return my_snippets
 
 def make_parser():
     """ Construct the command line parser """
@@ -71,7 +74,12 @@ def main():
         print "Stored {!r} as {!r}".format(snippet, name)
 
     elif command == "get":
-        name = get(**arguments)
+        get_list = get(**arguments)
+        if get_list:
+            for item in get_list:
+                print "{!r}: {!r}".format(item[0], item[1])
+        else:
+            print "Sorry, no snippet stored by that name!"
 
 
 if __name__ == "__main__":
