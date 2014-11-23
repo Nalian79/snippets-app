@@ -48,20 +48,39 @@ def get(name, snippet, filename):
                 break
     return name, snippet
 
+def getlinenum(string, filename):
+    """Find the linenumber of a specific string in a filename """
+    linenum = int(0)
+    with open(filename, "rb") as f:
+        logging.debug("Looking for string {!r} in {!r}".format(string, filename))
+        reader = csv.reader(f)
+        for num, line in enumerate(reader, 1):
+            if string in line:
+                linenum = int(num)
+                break
+            else:
+                print "String not found."
+    return linenum
+
 def update(name, snippet, filename):
     """Find an existing snippet and update it. """
     logging.info("Looking for snippet {!r}".format(name))
-    with open(filename, "a+") as f:
-        logging.debug("Searching file: {!r}".format(filename))
-        writer = csv.writer(f)
-        reader = csv.reader(f)
-        for row in reader:
-            if name in row:
-                writer.writerow([name, snippet])
-                logging.debug("Updated row")
-            else:
-                logging.info("No row found")
-                print "No available snippet to update."
+    overwrite_row = int(getlinenum(name, filename))
+    if overwrite_row >= 1:
+        logging.info("Snippet found on line {!r}".format(overwrite_row))
+        with open(filename, "rb") as r, open("copy.csv", "a+") as w:
+            reader = csv.reader(r)
+            writer = csv.writer(w)
+            for num, row in enumerate(reader,1):
+                if num == overwrite_row:
+                    writer.writerow([name,snippet])
+                else:
+                    writer.writerow(row)
+            logging.debug("Updated row {!r} with {!r}".format(overwrite_row,
+                                                              snippet))
+        logging.debug("Renaming copy of file to original name passed in")
+        os.rename("copy.csv", filename)
+
     return name, snippet
 
 def make_parser():
