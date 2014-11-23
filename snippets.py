@@ -54,19 +54,17 @@ def getlinenum(string, filename):
     with open(filename, "rb") as f:
         logging.debug("Looking for string {!r} in {!r}".format(string, filename))
         reader = csv.reader(f)
-        for num, line in enumerate(reader, 1):
+        for num, line in enumerate(reader,1):
             if string in line:
                 linenum = int(num)
                 break
-            else:
-                print "String not found."
     return linenum
 
 def update(name, snippet, filename):
     """Find an existing snippet and update it. """
     logging.info("Looking for snippet {!r}".format(name))
     overwrite_row = int(getlinenum(name, filename))
-    if overwrite_row >= 1:
+    if overwrite_row >= 1 :
         logging.info("Snippet found on line {!r}".format(overwrite_row))
         with open(filename, "rb") as r, open("copy.csv", "a+") as w:
             reader = csv.reader(r)
@@ -74,12 +72,14 @@ def update(name, snippet, filename):
             for num, row in enumerate(reader,1):
                 if num == overwrite_row:
                     writer.writerow([name,snippet])
+                    logging.debug("Updated row {!r} with {!r}".format(
+                            overwrite_row,snippet))
                 else:
                     writer.writerow(row)
-            logging.debug("Updated row {!r} with {!r}".format(overwrite_row,
-                                                              snippet))
         logging.debug("Renaming copy of file to original name passed in")
         os.rename("copy.csv", filename)
+    else:
+        print "No content to update."
 
     return name, snippet
 
@@ -173,7 +173,6 @@ def main():
 
     elif command == "update":
         name, snippet = update(**arguments)
-        print "Updating {!r} with {!r}.".format(name, snippet)
 
 if __name__ == "__main__":
     main()
